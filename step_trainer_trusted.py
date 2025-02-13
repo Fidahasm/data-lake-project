@@ -34,6 +34,8 @@ DropFields_node1739264775202 = DropFields.apply(frame=Join_node1739263686502, pa
 
 # Script generated for node Amazon S3
 EvaluateDataQuality().process_rows(frame=DropFields_node1739264775202, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1739263463300", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
-AmazonS3_node1739263720789 = glueContext.write_dynamic_frame.from_options(frame=DropFields_node1739264775202, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket-lakehouse/step-trainer/trusted/", "partitionKeys": []}, transformation_ctx="AmazonS3_node1739263720789")
-
+AmazonS3_node1739263720789 = glueContext.getSink(path="s3://stedi-bucket-lakehouse/step-trainer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1739263720789")
+AmazonS3_node1739263720789.setCatalogInfo(catalogDatabase="stedi",catalogTableName="step_trainer_trusted")
+AmazonS3_node1739263720789.setFormat("json")
+AmazonS3_node1739263720789.writeFrame(DropFields_node1739264775202)
 job.commit()

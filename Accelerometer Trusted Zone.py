@@ -30,10 +30,12 @@ AmazonS3_node1739211128718 = glueContext.create_dynamic_frame.from_options(forma
 CustomerPrivacyFilter_node1739211358469 = Join.apply(frame1=AmazonS3_node1739211128718, frame2=AmazonS3_node1739211160063, keys1=["user"], keys2=["email"], transformation_ctx="CustomerPrivacyFilter_node1739211358469")
 
 # Script generated for node Drop Fields
-DropFields_node1739211477176 = DropFields.apply(frame=CustomerPrivacyFilter_node1739211358469, paths=["email", "phone"], transformation_ctx="DropFields_node1739211477176")
+DropFields_node1739211477176 = DropFields.apply(frame=CustomerPrivacyFilter_node1739211358469, paths=["serialnumber", "birthday", "registrationdate", "sharewithresearchasofdate", "customername", "email", "lastupdatedate", "phone", "sharewithpublicasofdate", "sharewithfriendsasofdate"], transformation_ctx="DropFields_node1739211477176")
 
 # Script generated for node Amazon S3
 EvaluateDataQuality().process_rows(frame=DropFields_node1739211477176, ruleset=DEFAULT_DATA_QUALITY_RULESET, publishing_options={"dataQualityEvaluationContext": "EvaluateDataQuality_node1739211121845", "enableDataQualityResultsPublishing": True}, additional_options={"dataQualityResultsPublishing.strategy": "BEST_EFFORT", "observations.scope": "ALL"})
-AmazonS3_node1739211651344 = glueContext.write_dynamic_frame.from_options(frame=DropFields_node1739211477176, connection_type="s3", format="json", connection_options={"path": "s3://stedi-bucket-lakehouse/accelerometer/trusted/", "compression": "snappy", "partitionKeys": []}, transformation_ctx="AmazonS3_node1739211651344")
-
+AmazonS3_node1739211651344 = glueContext.getSink(path="s3://stedi-bucket-lakehouse/accelerometer/trusted/", connection_type="s3", updateBehavior="UPDATE_IN_DATABASE", partitionKeys=[], compression="snappy", enableUpdateCatalog=True, transformation_ctx="AmazonS3_node1739211651344")
+AmazonS3_node1739211651344.setCatalogInfo(catalogDatabase="stedi",catalogTableName="accelerometer_trusted")
+AmazonS3_node1739211651344.setFormat("json")
+AmazonS3_node1739211651344.writeFrame(DropFields_node1739211477176)
 job.commit()
